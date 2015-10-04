@@ -4,3 +4,9 @@ C:\SoftUni\Game\Game\bin\Debug\Game.pdb
 C:\SoftUni\Game\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
 C:\SoftUni\Game\Game\obj\Debug\Game.exe
 C:\SoftUni\Game\Game\obj\Debug\Game.pdb
+C:\SoftUni\ProjectGame\Game\bin\Debug\Game.exe.config
+C:\SoftUni\ProjectGame\Game\obj\Debug\Game.exe
+C:\SoftUni\ProjectGame\Game\obj\Debug\Game.pdb
+C:\SoftUni\ProjectGame\Game\bin\Debug\Game.exe
+C:\SoftUni\ProjectGame\Game\bin\Debug\Game.pdb
+C:\SoftUni\ProjectGame\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache

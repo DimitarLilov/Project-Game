@@ -15,6 +15,7 @@ namespace Game
         static int liveCount = 5;
         static int shotsCount = 0;
         static int KillsCount = 0;
+        static string success;
         static int playerPosition;
         static List<List<int>> enemies = new List<List<int>>();
         static List<List<int>> shots = new List<List<int>>();
@@ -25,13 +26,15 @@ namespace Game
         static Random rend = new Random();
         static void Main()
         {
+            Console.Title = "Pesho Game";
             Console.BufferHeight = Console.WindowHeight = Height;
-            Console.BufferWidth =Console.WindowWidth = 50;
+            Console.BufferWidth =Console.WindowWidth = 60;
             playerPosition = Width / 2;
             int steps = 0;
             int enemiesPause = 4;
             while (liveCount > 0)
             {
+
                 UpdateField();
                 if (steps % enemiesPause == 0)
                 {
@@ -70,6 +73,7 @@ namespace Game
                         Shoot();
                         shotsCount++;
                     }
+                     
                 }
 
                 Thread.Sleep(200);
@@ -77,6 +81,7 @@ namespace Game
             }
             Console.Clear();
             Console.WriteLine("GAME OVER");
+            Console.WriteLine("Success: {0} %", success);
         }
 
         private static void DrowInfo(int x,int y, string str, ConsoleColor color)
@@ -203,12 +208,15 @@ namespace Game
 
         private static void Drow()
         {
+            success = ((KillsCount*100.0)/shotsCount).ToString("F2");
             DrowEnemies();
             DrowShots();
             DrowPlayer();
+            DrowInfo(35, 2, "Player Name: Pesho", ConsoleColor.Red);
             DrowInfo(35,4,"Lives: "+new string(heart,liveCount), ConsoleColor.Red);
             DrowInfo(35,6,"Shots: "+shotsCount, ConsoleColor.Red);
             DrowInfo(35,8,"Kills: "+KillsCount, ConsoleColor.Red);
+            DrowInfo(35,10, "Success: " + success + " %", ConsoleColor.Red);
         }
         private static void DrowSymbolAtCoordinates(List<int> coordinates, char symbol, ConsoleColor color)
         {
