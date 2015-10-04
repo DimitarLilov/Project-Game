@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,75 +17,162 @@ namespace Game
         static int shotsCount = 0;
         static int KillsCount = 0;
         static string success;
+        static string name;
         static int playerPosition;
         static List<List<int>> enemies = new List<List<int>>();
         static List<List<int>> shots = new List<List<int>>();
+        static Dictionary<string, double> topResults = new Dictionary<string, double>();
         static char playerSymbol = '@';
         static char enemySymbol = '*';
         static char shotSymbol = '|';
-        static char heart =(char)003;
+        static char heart = (char)003;
         static Random rend = new Random();
-        static void Main()
+
+        private static void Main()
         {
-            Console.Title = "Pesho Game";
+            Console.Title = "Game";
             Console.BufferHeight = Console.WindowHeight = Height;
-            Console.BufferWidth =Console.WindowWidth = 60;
+            Console.BufferWidth = Console.WindowWidth = 60;
+            Console.Write("Player Name:");
+            name = Console.ReadLine();
+            Console.Title = name + " Game";
             playerPosition = Width / 2;
+            LoadeResult(topResults);
             int steps = 0;
             int enemiesPause = 4;
-            while (liveCount > 0)
+            if (name != string.Empty)
             {
-
-                UpdateField();
-                if (steps % enemiesPause == 0)
+                while (liveCount > 0)
                 {
-                    GenerateRandomEnemy();
-                    UpdateEnemies();
-                    HandleCollisionsEnemiesPlayer();
-                    steps = 0;
-                }
-                steps++;
-                Drow();
-                if (Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo pressedKey = Console.ReadKey(true);
-                    while (Console.KeyAvailable)
-                    {
-                        Console.ReadKey(true);
 
-                    }
-                    if (pressedKey.Key == ConsoleKey.LeftArrow)
+                    UpdateField();
+                    if (steps % enemiesPause == 0)
                     {
-                        if (playerPosition - 1 > 0)
+                        GenerateRandomEnemy();
+                        UpdateEnemies();
+                        HandleCollisionsEnemiesPlayer();
+                        steps = 0;
+                    }
+                    steps++;
+                    Drow();
+                    if (Console.KeyAvailable)
+                    {
+                        ConsoleKeyInfo pressedKey = Console.ReadKey(true);
+                        while (Console.KeyAvailable)
                         {
-                            playerPosition--;
-                        }
-                    }
+                            Console.ReadKey(true);
 
-                    if (pressedKey.Key == ConsoleKey.RightArrow)
-                    {
-                        if (playerPosition + 1 < Width - 1)
+                        }
+                        if (pressedKey.Key == ConsoleKey.LeftArrow)
                         {
-                            playerPosition++;
+                            if (playerPosition - 1 > 0)
+                            {
+                                playerPosition--;
+                            }
                         }
-                    }
-                    if (pressedKey.Key == ConsoleKey.Spacebar)
-                    {
-                        Shoot();
-                        shotsCount++;
-                    }
-                     
-                }
 
-                Thread.Sleep(200);
+                        if (pressedKey.Key == ConsoleKey.RightArrow)
+                        {
+                            if (playerPosition + 1 < Width - 1)
+                            {
+                                playerPosition++;
+                            }
+                        }
+                        if (pressedKey.Key == ConsoleKey.Spacebar)
+                        {
+                            Shoot();
+                            shotsCount++;
+                        }
+
+                    }
+
+                    Thread.Sleep(200);
+                    Console.Clear();
+                }
+            }
+            else
+            {
                 Console.Clear();
             }
+
             Console.Clear();
             Console.WriteLine("GAME OVER");
-            Console.WriteLine("Success: {0} %", success);
+            Console.WriteLine("Success: " + success);
+            SaveResults();
+
+
+
         }
 
-        private static void DrowInfo(int x,int y, string str, ConsoleColor color)
+        private static void SaveResults()
+        {
+            using (var source = new FileStream("../../Game.txt", FileMode.Append))
+            {
+
+                byte[] bytes = Encoding.UTF8.GetBytes(name + "|" + success + "" + Environment.NewLine);
+                source.Write(bytes, 0, bytes.Length);
+            }
+        }
+
+        private static void LoadeResult(Dictionary<string, double> topResults)
+        {
+            StreamReader reader = new StreamReader("../../Game.txt");
+            using (reader)
+            {
+                string line = reader.ReadLine();
+
+                while (true)
+                {
+                    if (line != null)
+                    {
+                        string[] playerInfo = line.Split('|');
+                        string name = playerInfo[0];
+                        string points = playerInfo[1];
+                        if (points != "NaN")
+                        {
+                            double point = double.Parse(points);
+                            if (!topResults.ContainsKey(name))
+                            {
+
+                                topResults.Add(name, point);
+                            };
+
+                            topResults.Remove(name);
+                            topResults.Add(name, point);
+                        }
+
+                       
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                    line = reader.ReadLine();
+                }
+
+            }
+
+        }
+
+
+
+        private static void DrowTopResults(int x, int y, Dictionary<string, double> topResult)
+        {
+            int i = 0;
+            foreach (KeyValuePair<string, double> result in topResult.OrderByDescending(key => key.Value).Take(10))
+            {
+                Console.SetCursorPosition(x, y + i);
+                Console.WriteLine("{0}: {1:f2} %", result.Key, result.Value);
+                i++;
+
+            }
+
+
+
+
+        }
+        private static void DrowInfo(int x, int y, string str, ConsoleColor color)
         {
             Console.SetCursorPosition(x, y);
             Console.ForegroundColor = color;
@@ -102,7 +190,7 @@ namespace Game
         {
             for (int i = 0; i < enemies.Count; i++)
             {
-                if (enemies[i][0] == playerPosition && enemies[i][1] == Height-1)
+                if (enemies[i][0] == playerPosition && enemies[i][1] == Height - 1)
                 {
                     liveCount--;
                 }
@@ -110,7 +198,7 @@ namespace Game
         }
 
         private static void HandleCollisionsEnemiesShots()
-        { 
+        {
             List<int> enemiesToRemove = new List<int>();
             List<int> shotsToRemove = new List<int>();
             for (int enemy = 0; enemy < enemies.Count; enemy++)
@@ -132,7 +220,7 @@ namespace Game
                 if (!enemiesToRemove.Contains(i))
                 {
                     newEnemies.Add(enemies[i]);
-                    
+
                 }
             }
             for (int i = 0; i < shots.Count; i++)
@@ -181,7 +269,7 @@ namespace Game
                 {
                     index = i;
                     break;
-                    
+
                 }
             }
             if (index != -1)
@@ -208,15 +296,18 @@ namespace Game
 
         private static void Drow()
         {
-            success = ((KillsCount*100.0)/shotsCount).ToString("F2");
+
+            success = ((KillsCount * 100.0) / shotsCount).ToString("F2");
             DrowEnemies();
             DrowShots();
             DrowPlayer();
-            DrowInfo(35, 2, "Player Name: Pesho", ConsoleColor.Red);
-            DrowInfo(35,4,"Lives: "+new string(heart,liveCount), ConsoleColor.Red);
-            DrowInfo(35,6,"Shots: "+shotsCount, ConsoleColor.Red);
-            DrowInfo(35,8,"Kills: "+KillsCount, ConsoleColor.Red);
-            DrowInfo(35,10, "Success: " + success + " %", ConsoleColor.Red);
+            DrowInfo(35, 2, "Player Name: " + name, ConsoleColor.Red);
+            DrowInfo(35, 4, "Lives: " + new string(heart, liveCount), ConsoleColor.Red);
+            DrowInfo(35, 6, "Shots: " + shotsCount, ConsoleColor.Red);
+            DrowInfo(35, 8, "Kills: " + KillsCount, ConsoleColor.Red);
+            DrowInfo(35, 10, "Success: " + success + " %", ConsoleColor.Red);
+            DrowInfo(35, 12, "TOP 10: ", ConsoleColor.Red);
+            DrowTopResults(35, 13, topResults);
         }
         private static void DrowSymbolAtCoordinates(List<int> coordinates, char symbol, ConsoleColor color)
         {
