@@ -300,11 +300,11 @@ namespace Game
             DrowEnemies();
             DrowShots();
             DrowPlayer();
-            DrowInfo(35, 2, "Player Name: " + name, ConsoleColor.Red);
+            DrowInfo(35, 2, "Player Name: " + name, ConsoleColor.White);
             DrowInfo(35, 4, "Lives: " + new string(heart, liveCount), ConsoleColor.Red);
-            DrowInfo(35, 6, "Shots: " + shotsCount, ConsoleColor.Red);
-            DrowInfo(35, 8, "Kills: " + KillsCount, ConsoleColor.Red);
-            DrowInfo(35, 10, "Success: " + success + " %", ConsoleColor.Red);
+            DrowInfo(35, 6, "Shots: " + shotsCount, ConsoleColor.Blue);
+            DrowInfo(35, 8, "Kills: " + KillsCount, ConsoleColor.Green);
+            DrowInfo(35, 10, "Success: " + success + " %", ConsoleColor.Yellow);
             DrowInfo(35, 12, "TOP 10: ", ConsoleColor.Red);
             DrowTopResults(35, 13, topResults);
         }
@@ -319,7 +319,7 @@ namespace Game
         {
             foreach (List<int> shot in shots)
             {
-                ConsoleColor shotColor = ConsoleColor.DarkBlue;
+                ConsoleColor shotColor = ConsoleColor.Blue;
                 DrowSymbolAtCoordinates(shot, shotSymbol, shotColor);
             }
         }
@@ -328,7 +328,7 @@ namespace Game
         {
             foreach (List<int> enemy in enemies)
             {
-                ConsoleColor enemyColor = ConsoleColor.White;
+                ConsoleColor enemyColor = ConsoleColor.Green;
                 DrowSymbolAtCoordinates(enemy, enemySymbol, enemyColor);
             }
         }
@@ -336,7 +336,7 @@ namespace Game
         private static void DrowPlayer()
         {
             List<int> PlayerCoordinates = new List<int>() { playerPosition, Height - 1 };
-            ConsoleColor playerColor = ConsoleColor.Blue;
+            ConsoleColor playerColor = ConsoleColor.White;
             char symbol = playerSymbol;
             DrowSymbolAtCoordinates(PlayerCoordinates, playerSymbol, playerColor);
         }
