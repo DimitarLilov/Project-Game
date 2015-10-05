@@ -90,7 +90,7 @@ namespace Game
                     Console.Clear();
                 }
             }
-            
+
 
             Console.Clear();
             Console.WriteLine("GAME OVER");
@@ -105,7 +105,7 @@ namespace Game
 
         private static void SaveResults()
         {
-            using (var source = new FileStream("../../Game.txt", FileMode.Append))
+            using (var source = new FileStream("../../Result.txt", FileMode.Append))
             {
 
                 byte[] bytes = Encoding.UTF8.GetBytes(name + "|" + KillsCount + "" + Environment.NewLine);
@@ -115,7 +115,7 @@ namespace Game
 
         private static void LoadeResult(Dictionary<string, int> topResults)
         {
-            StreamReader reader = new StreamReader("../../Game.txt");
+            StreamReader reader = new StreamReader("../../Result.txt");
             using (reader)
             {
                 string line = reader.ReadLine();
@@ -127,7 +127,7 @@ namespace Game
                         string[] playerInfo = line.Split('|');
                         string namePlayer = playerInfo[0];
                         string points = playerInfo[1];
-                        if (points != "NaN" && namePlayer !="")
+                        if (points != "NaN" && namePlayer != "")
                         {
                             int point = int.Parse(points);
                             if (!topResults.ContainsKey(namePlayer))
@@ -140,7 +140,7 @@ namespace Game
                             topResults.Add(namePlayer, point);
                         }
 
-                       
+
                     }
                     else
                     {
