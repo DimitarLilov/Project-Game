@@ -14,11 +14,12 @@ namespace Game
     {
         static SoundPlayer shotsSound = new SoundPlayer("../../Resource/shot.wav");
         static SoundPlayer killPlayer = new SoundPlayer("../../Resource/KillPlayer.wav");
+        static SoundPlayer enemyDead = new SoundPlayer("../../Resource/enemyDead.wav");
         const int Height = 30;
         const int Width = 30;
         static int liveCount = 3;
-        static int shotsCount = 0;
-        static int KillsCount = 0;
+        static int shotsCount;
+        static int KillsCount;
         static string success;
         static string name;
         static int playerPosition;
@@ -220,6 +221,7 @@ namespace Game
                         enemiesToRemove.Add(enemy);
                         shotsToRemove.Add(shot);
                         KillsCount++;
+                        enemyDead.Play();
                     }
                 }
             }

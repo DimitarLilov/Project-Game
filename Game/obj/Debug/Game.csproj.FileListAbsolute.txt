@@ -16,9 +16,3 @@ C:\SoftUni\Advanced C#\Teamwork\ProjectGame\ProjectGame\Game\obj\Debug\Game.pdb
 C:\SoftUni\Advanced C#\Teamwork\ProjectGame\ProjectGame\Game\bin\Debug\Game.exe
 C:\SoftUni\Advanced C#\Teamwork\ProjectGame\ProjectGame\Game\bin\Debug\Game.pdb
 C:\SoftUni\Advanced C#\Teamwork\ProjectGame\ProjectGame\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
-C:\Users\Mici\Documents\GitHub\Project-Game\Game\bin\Debug\Game.exe.config
-C:\Users\Mici\Documents\GitHub\Project-Game\Game\obj\Debug\Game.exe
-C:\Users\Mici\Documents\GitHub\Project-Game\Game\obj\Debug\Game.pdb
-C:\Users\Mici\Documents\GitHub\Project-Game\Game\bin\Debug\Game.exe
-C:\Users\Mici\Documents\GitHub\Project-Game\Game\bin\Debug\Game.pdb
-C:\Users\Mici\Documents\GitHub\Project-Game\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
