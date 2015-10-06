@@ -39,7 +39,7 @@ namespace Game
             playerPosition = Width / 2;
             LoadeResult(topResults);
             int steps = 0;
-            int enemiesPause = 4;
+            int enemiesPause = 6;
             if (name != string.Empty)
             {
                 while (liveCount > 0)
@@ -63,21 +63,22 @@ namespace Game
                             Console.ReadKey(true);
 
                         }
-                        if (pressedKey.Key == ConsoleKey.LeftArrow)
+                        if (pressedKey.Key == ConsoleKey.LeftArrow || pressedKey.Key == ConsoleKey.A)
                         {
                             if (playerPosition - 1 > 0)
                             {
                                 playerPosition--;
                             }
                         }
-
-                        if (pressedKey.Key == ConsoleKey.RightArrow)
+                        else
+                        if (pressedKey.Key == ConsoleKey.RightArrow || pressedKey.Key == ConsoleKey.D)
                         {
-                            if (playerPosition + 1 < Width)
+                            if (playerPosition + 1 < Width )
                             {
                                 playerPosition++;
                             }
                         }
+                        else
                         if (pressedKey.Key == ConsoleKey.Spacebar)
                         {
                             Shoot();
@@ -90,14 +91,14 @@ namespace Game
                     Console.Clear();
                 }
             }
-
-
-            Console.Clear();
+            Console.Beep();
             Console.WriteLine("GAME OVER");
             Console.WriteLine("Kills: " + KillsCount);
             Console.WriteLine("Shots: " + shotsCount);
             Console.WriteLine("Success: " + success);
             SaveResults();
+            Console.Clear();
+
 
 
 
