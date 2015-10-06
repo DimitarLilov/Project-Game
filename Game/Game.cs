@@ -329,6 +329,7 @@ namespace Game
             DrowShots();
             DrowPlayer();
             DrowInfo(35, 2, "Player Name: " + name, ConsoleColor.White);
+            DrowInfo(35, 4, "Lives: " + new string(heart, 10), ConsoleColor.DarkRed);
             DrowInfo(35, 4, "Lives: " + new string(heart, liveCount), ConsoleColor.Red);
             DrowInfo(35, 6, "Shots: " + shotsCount, ConsoleColor.Blue);
             DrowInfo(35, 8, "Kills: " + KillsCount, ConsoleColor.Green);
