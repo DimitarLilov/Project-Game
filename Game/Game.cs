@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,15 +12,18 @@ namespace Game
 {
     class Game
     {
+        static SoundPlayer shotsSound = new SoundPlayer("../../Resource/shot.wav");
+        static SoundPlayer killPlayer = new SoundPlayer("../../Resource/KillPlayer.wav");
         const int Height = 30;
         const int Width = 30;
-        static int liveCount = 5;
+        static int liveCount = 3;
         static int shotsCount = 0;
         static int KillsCount = 0;
         static string success;
         static string name;
         static int playerPosition;
         static List<List<int>> enemies = new List<List<int>>();
+        static List<List<int>> bonus = new List<List<int>>();
         static List<List<int>> shots = new List<List<int>>();
         static Dictionary<string, int> topResults = new Dictionary<string, int>();
         static char playerSymbol = (char)1;
@@ -37,23 +41,32 @@ namespace Game
             name = Console.ReadLine();
             Console.Title = name + " Game";
             playerPosition = Width / 2;
-            LoadeResult(topResults);
-            int steps = 0;
+            LoadeResult();
+            int stepsEnemy = 0;
+            int stepsBonus = 0;
             int enemiesPause = 6;
+            int liveBonusPause = 500;
             if (name != string.Empty)
             {
                 while (liveCount > 0)
                 {
 
                     UpdateField();
-                    if (steps % enemiesPause == 0)
+                    if (stepsEnemy % enemiesPause == 0)
                     {
                         GenerateRandomEnemy();
                         UpdateEnemies();
                         HandleCollisionsEnemiesPlayer();
-                        steps = 0;
+                        stepsEnemy = 0;
                     }
-                    steps++;
+                    stepsEnemy++;
+                    if (stepsBonus != 0 && stepsBonus % liveBonusPause == 0)
+                    {
+                        GenerateRandomBonus();
+                        stepsBonus = 0;
+                    }
+                    stepsBonus++;
+                    
                     Drow();
                     if (Console.KeyAvailable)
                     {
@@ -83,6 +96,7 @@ namespace Game
                         {
                             Shoot();
                             shotsCount++;
+                            shotsSound.Play();
                         }
 
                     }
@@ -91,22 +105,16 @@ namespace Game
                     Console.Clear();
                 }
             }
-            Console.Beep();
             Console.WriteLine("GAME OVER");
             Console.WriteLine("Kills: " + KillsCount);
             Console.WriteLine("Shots: " + shotsCount);
             Console.WriteLine("Success: " + success);
             SaveResults();
-            Console.Clear();
-
-
-
-
         }
 
         private static void SaveResults()
         {
-            using (var source = new FileStream("../../Result.txt", FileMode.Append))
+            using (var source = new FileStream("../../Resource/Result.txt", FileMode.Append))
             {
 
                 byte[] bytes = Encoding.UTF8.GetBytes(name + "|" + KillsCount + "" + Environment.NewLine);
@@ -114,9 +122,9 @@ namespace Game
             }
         }
 
-        private static void LoadeResult(Dictionary<string, int> topResults)
+        private static void LoadeResult()
         {
-            StreamReader reader = new StreamReader("../../Result.txt");
+            StreamReader reader = new StreamReader("../../Resource/Result.txt");
             using (reader)
             {
                 string line = reader.ReadLine();
@@ -155,12 +163,10 @@ namespace Game
 
         }
 
-
-
-        private static void DrowTopResults(int x, int y, Dictionary<string, int> topResult)
+        private static void DrowTopResults(int x, int y)
         {
             int i = 0;
-            foreach (KeyValuePair<string, int> result in topResult.OrderByDescending(key => key.Value).Take(10))
+            foreach (KeyValuePair<string, int> result in topResults.OrderByDescending(key => key.Value).Take(10))
             {
                 Console.SetCursorPosition(x, y + i);
                 Console.WriteLine("{0} - {1} Kills", result.Key, result.Value);
@@ -172,6 +178,7 @@ namespace Game
 
 
         }
+
         private static void DrowInfo(int x, int y, string str, ConsoleColor color)
         {
             Console.SetCursorPosition(x, y);
@@ -182,8 +189,10 @@ namespace Game
 
         private static void UpdateField()
         {
-            UpdateShots();
             HandleCollisionsEnemiesShots();
+            UpdateShots();
+            HandleCollisionsBonusPlayer();
+            UpdateLiveBonus();
         }
 
         private static void HandleCollisionsEnemiesPlayer()
@@ -193,6 +202,7 @@ namespace Game
                 if (enemies[i][0] == playerPosition && enemies[i][1] == Height - 1)
                 {
                     liveCount--;
+                    killPlayer.Play();
                 }
             }
         }
@@ -232,6 +242,20 @@ namespace Game
             }
             enemies = newEnemies;
             shots = newShots;
+        }
+
+        private static void HandleCollisionsBonusPlayer()
+        {
+            for (int i = 0; i < bonus.Count; i++)
+            {
+                if (bonus[i][0] == playerPosition && bonus[i][1] == Height - 1)
+                {
+                    if (liveCount < 10)
+                    {
+                        liveCount++;
+                    }
+                }
+            }
         }
 
         private static void UpdateShots()
@@ -299,6 +323,7 @@ namespace Game
 
             success = ((KillsCount * 100.0) / shotsCount).ToString("F2");
             DrowEnemies();
+            DrowBonus();
             DrowShots();
             DrowPlayer();
             DrowInfo(35, 2, "Player Name: " + name, ConsoleColor.White);
@@ -307,8 +332,9 @@ namespace Game
             DrowInfo(35, 8, "Kills: " + KillsCount, ConsoleColor.Green);
             DrowInfo(35, 10, "Success: " + success + " %", ConsoleColor.Yellow);
             DrowInfo(35, 12, "TOP 10: ", ConsoleColor.Red);
-            DrowTopResults(35, 13, topResults);
+            DrowTopResults(35, 13);
         }
+
         private static void DrowSymbolAtCoordinates(List<int> coordinates, char symbol, ConsoleColor color)
         {
             Console.SetCursorPosition(coordinates[0], coordinates[1]);
@@ -316,6 +342,7 @@ namespace Game
             Console.WriteLine(symbol);
 
         }
+
         private static void DrowShots()
         {
             foreach (List<int> shot in shots)
@@ -334,12 +361,54 @@ namespace Game
             }
         }
 
+        private static void DrowBonus()
+        {
+            foreach (List<int> live in bonus)
+            {
+                ConsoleColor bonusColor = ConsoleColor.Red;
+                DrowSymbolAtCoordinates(live, heart, bonusColor);
+            }
+        }
+
         private static void DrowPlayer()
         {
             List<int> PlayerCoordinates = new List<int>() { playerPosition, Height - 1 };
             ConsoleColor playerColor = ConsoleColor.White;
             char symbol = playerSymbol;
             DrowSymbolAtCoordinates(PlayerCoordinates, playerSymbol, playerColor);
+        }
+
+        private static void UpdateLiveBonus()
+        {
+            for (int i = 0; i < bonus.Count; i++)
+            {
+                bonus[i][1] = bonus[i][1] + 1;
+            }
+            int index = -1;
+            for (int i = 0; i < bonus.Count; i++)
+            {
+                if (bonus[i][1] >= Height)
+                {
+                    index = i;
+                    break;
+
+                }
+            }
+            if (index != -1)
+            {
+                bonus.RemoveAt(index);
+            }
+        }
+
+        private static void GenerateRandomBonus()
+        {
+            int randomBonusPosition = rend.Next(1, Width);
+            List<int> randomBonusCordinates = new List<int>()
+            {
+                randomBonusPosition,
+                1
+            };
+            bonus.Add(randomBonusCordinates);
         }
     }
 }
