@@ -321,7 +321,7 @@ namespace Game
         {
             for (int i = 0; i < bonus.Count; i++)
             {
-                if (bonus[i][0] == playerPosition && bonus[i][1] == Height - 1)
+                if (bonus[i][0] == playerPosition && bonus[i][1] == Height)
                 {
                     if (liveCount < 10)
                     {
