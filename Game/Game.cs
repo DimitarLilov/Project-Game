@@ -12,25 +12,36 @@ namespace Game
 {
     class Game
     {
-        static SoundPlayer shotsSound = new SoundPlayer("../../Resource/shot.wav");
-        static SoundPlayer killPlayer = new SoundPlayer("../../Resource/KillPlayer.wav");
-        static SoundPlayer enemyDead = new SoundPlayer("../../Resource/enemyDead.wav");
         const int Height = 30;
         const int Width = 30;
-        static int liveCount = 3;
-        static int shotsCount;
-        static int KillsCount;
-        static string success;
-        static string name;
-        static int playerPosition;
+
+        static SoundPlayer shotsSound = new SoundPlayer("../../Resource/shot.wav");
+        static SoundPlayer killPlayer = new SoundPlayer("../../Resource/KillPlayer.wav");
+
+        static Dictionary<string, int> topResults = new Dictionary<string, int>();
+
         static List<List<int>> enemies = new List<List<int>>();
         static List<List<int>> bonus = new List<List<int>>();
         static List<List<int>> shots = new List<List<int>>();
-        static Dictionary<string, int> topResults = new Dictionary<string, int>();
+
+        static int liveCount = 3;
+        static int shotsCount;
+        static int KillsCount;
+        static int playerPosition;
+        static int levels;
+        static int stepsEnemy;
+        static int stepsBonus;
+        static int enemiesPause = 6;
+        static int liveBonusPause = 500;
+
+        static string success;
+        static string name;
+
         static char playerSymbol = (char)1;
         static char enemySymbol = (char)31;
         static char shotSymbol = '|';
         static char heart = (char)3;
+
         static Random rend = new Random();
 
         private static void Main()
@@ -43,16 +54,13 @@ namespace Game
             Console.Title = name + " Game";
             playerPosition = Width / 2;
             LoadeResult();
-            int stepsEnemy = 0;
-            int stepsBonus = 0;
-            int enemiesPause = 6;
-            int liveBonusPause = 500;
+
             if (name != string.Empty)
             {
                 while (liveCount > 0)
                 {
 
-                    UpdateField();
+                    Update();
                     if (stepsEnemy % enemiesPause == 0)
                     {
                         GenerateRandomEnemy();
@@ -67,7 +75,7 @@ namespace Game
                         stepsBonus = 0;
                     }
                     stepsBonus++;
-                    
+
                     Drow();
                     if (Console.KeyAvailable)
                     {
@@ -87,7 +95,7 @@ namespace Game
                         else
                         if (pressedKey.Key == ConsoleKey.RightArrow || pressedKey.Key == ConsoleKey.D)
                         {
-                            if (playerPosition + 1 < Width )
+                            if (playerPosition + 1 < Width)
                             {
                                 playerPosition++;
                             }
@@ -107,6 +115,7 @@ namespace Game
                 }
             }
             Console.WriteLine("GAME OVER");
+            Console.WriteLine("Lvl: "+levels);
             Console.WriteLine("Kills: " + KillsCount);
             Console.WriteLine("Shots: " + shotsCount);
             Console.WriteLine("Success: " + success);
@@ -137,6 +146,8 @@ namespace Game
                         string[] playerInfo = line.Split('|');
                         string namePlayer = playerInfo[0];
                         string points = playerInfo[1];
+
+
                         if (points != "NaN" && namePlayer != "")
                         {
                             int point = int.Parse(points);
@@ -148,8 +159,8 @@ namespace Game
 
                             topResults.Remove(namePlayer);
                             topResults.Add(namePlayer, point);
-                        }
 
+                        }
 
                     }
                     else
@@ -174,10 +185,6 @@ namespace Game
                 i++;
 
             }
-
-
-
-
         }
 
         private static void DrowInfo(int x, int y, string str, ConsoleColor color)
@@ -188,12 +195,77 @@ namespace Game
 
         }
 
-        private static void UpdateField()
+        private static void Update()
         {
             HandleCollisionsEnemiesShots();
             UpdateShots();
             HandleCollisionsBonusPlayer();
             UpdateLiveBonus();
+            Level();
+        }
+
+        private static void Level()
+        {
+            if (KillsCount < 25)
+            {
+                levels = 0;
+            }
+            else if (KillsCount < 50)
+            {
+                levels = 1;
+                enemiesPause = 5;
+
+            }
+            else if (KillsCount < 100)
+            {
+                levels = 2;
+                enemiesPause = 5;
+            }
+            else if (KillsCount < 150)
+            {
+                levels = 3;
+                enemiesPause = 4;
+            }
+            else if (KillsCount < 200)
+            {
+                levels = 4;
+                enemiesPause = 4;
+            }
+            else if (KillsCount < 250)
+            {
+                levels = 5;
+                enemiesPause = 3;
+            }
+            else if (KillsCount < 300)
+            {
+                levels = 6;
+                enemiesPause = 3;
+            }
+            else if (KillsCount < 350)
+            {
+                levels = 7;
+                enemiesPause = 2;
+            }
+            else if (KillsCount < 400)
+            {
+                levels = 8;
+                enemiesPause = 2;
+            }
+            else if (KillsCount < 450)
+            {
+                levels = 9;
+                enemiesPause = 1;
+            }
+            else if (KillsCount < 500)
+            {
+                levels = 10;
+                enemiesPause = 1;
+            }
+            else if (KillsCount >= 500)
+            {
+                levels = 11;
+                enemiesPause = 1;
+            }
         }
 
         private static void HandleCollisionsEnemiesPlayer()
@@ -221,7 +293,6 @@ namespace Game
                         enemiesToRemove.Add(enemy);
                         shotsToRemove.Add(shot);
                         KillsCount++;
-                        enemyDead.Play();
                     }
                 }
             }
@@ -329,13 +400,14 @@ namespace Game
             DrowShots();
             DrowPlayer();
             DrowInfo(35, 2, "Player Name: " + name, ConsoleColor.White);
-            DrowInfo(35, 4, "Lives: " + new string(heart, 10), ConsoleColor.DarkRed);
-            DrowInfo(35, 4, "Lives: " + new string(heart, liveCount), ConsoleColor.Red);
-            DrowInfo(35, 6, "Shots: " + shotsCount, ConsoleColor.Blue);
-            DrowInfo(35, 8, "Kills: " + KillsCount, ConsoleColor.Green);
-            DrowInfo(35, 10, "Success: " + success + " %", ConsoleColor.Yellow);
-            DrowInfo(35, 12, "TOP 10: ", ConsoleColor.Red);
-            DrowTopResults(35, 13);
+            DrowInfo(35, 4, "Lvl: " + levels, ConsoleColor.Yellow);
+            DrowInfo(35, 6, "Lives: " + new string(heart, 10), ConsoleColor.DarkRed);
+            DrowInfo(35, 6, "Lives: " + new string(heart, liveCount), ConsoleColor.Red);
+            DrowInfo(35, 8, "Shots: " + shotsCount, ConsoleColor.Blue);
+            DrowInfo(35, 10, "Kills: " + KillsCount, ConsoleColor.Green);
+            DrowInfo(35, 12, "Success: " + success + " %", ConsoleColor.Yellow);
+            DrowInfo(35, 14, "TOP 10: ", ConsoleColor.Red);
+            DrowTopResults(35, 16);
         }
 
         private static void DrowSymbolAtCoordinates(List<int> coordinates, char symbol, ConsoleColor color)
