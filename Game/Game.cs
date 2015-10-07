@@ -181,11 +181,11 @@ namespace Game
 
         private static void DrowTopResults(int x, int y)
         {
-            int i = 0;
+            int i = 1;
             foreach (KeyValuePair<string, int> result in topResults.OrderByDescending(key => key.Value).Take(10))
             {
                 Console.SetCursorPosition(x, y + i);
-                Console.WriteLine("{0} - {1} Kills", result.Key, result.Value);
+                Console.WriteLine("{0}. {1} - {2} Kills",i, result.Key, result.Value);
                 i++;
 
             }
@@ -392,7 +392,7 @@ namespace Game
 
         private static void Shoot()
         {
-            shots.Add(new List<int>() { playerPosition, Height - 3 });
+            shots.Add(new List<int>() { playerPosition, Height - 2 });
         }
 
         private static void Drow()
@@ -411,7 +411,7 @@ namespace Game
             DrowInfo(35, 10, "Kills: " + KillsCount, ConsoleColor.Green);
             DrowInfo(35, 12, "Success: " + success + " %", ConsoleColor.Yellow);
             DrowInfo(35, 14, "TOP 10: ", ConsoleColor.Red);
-            DrowTopResults(35, 16);
+            DrowTopResults(35, 15);
         }
 
         private static void DrowSymbolAtCoordinates(List<int> coordinates, char symbol, ConsoleColor color)
