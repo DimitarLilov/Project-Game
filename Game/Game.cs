@@ -107,7 +107,11 @@ namespace Game
                             shotsCount++;
                             shotsSound.Play();
                         }
-
+                        else if (pressedKey.Key == ConsoleKey.B)
+                        {
+                            stepsBonus = 499;
+                        }
+                        
                     }
 
                     Thread.Sleep(200);
@@ -115,7 +119,7 @@ namespace Game
                 }
             }
             Console.WriteLine("GAME OVER");
-            Console.WriteLine("Lvl: "+levels);
+            Console.WriteLine("Lvl: " + levels);
             Console.WriteLine("Kills: " + KillsCount);
             Console.WriteLine("Shots: " + shotsCount);
             Console.WriteLine("Success: " + success);
@@ -321,7 +325,7 @@ namespace Game
         {
             for (int i = 0; i < bonus.Count; i++)
             {
-                if (bonus[i][0] == playerPosition && bonus[i][1] == Height)
+                if (bonus[i][0] == playerPosition && bonus[i][1] == Height - 1)
                 {
                     if (liveCount < 10)
                     {
