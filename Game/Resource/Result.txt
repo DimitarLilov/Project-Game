@@ -1,0 +1,12 @@
+Peevski|10000
+Pesho|5000
+Gosho|4000
+Ivan|3000
+Volodiq|2000
+Kacii|1000
+Sasho|900
+Martin|400
+Dinko|300
+Bat Gergi|200
+Nedqlka|100
+Bat Gergi|10000

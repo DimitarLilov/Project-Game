@@ -22,17 +22,21 @@ namespace Game
 
         static List<List<int>> enemies = new List<List<int>>();
         static List<List<int>> bonus = new List<List<int>>();
+        static List<List<int>> shields = new List<List<int>>();
         static List<List<int>> shots = new List<List<int>>();
 
         static int liveCount = 3;
+        static int shieldsCount;
         static int shotsCount;
         static int KillsCount;
         static int playerPosition;
         static int levels;
         static int stepsEnemy;
         static int stepsBonus;
+        static int stepsShield;
         static int enemiesPause = 6;
         static int liveBonusPause = 500;
+        static int shieldPause = 750;
 
         static string success;
         static string name;
@@ -41,6 +45,7 @@ namespace Game
         static char enemySymbol = (char)31;
         static char shotSymbol = '|';
         static char heart = (char)3;
+        static char shield = (char)4;
 
         static Random rend = new Random();
 
@@ -54,18 +59,19 @@ namespace Game
             Console.Title = name + " Game";
             playerPosition = Width / 2;
             LoadeResult();
-
+           
             if (name != string.Empty)
             {
                 while (liveCount > 0)
                 {
-
+                   
                     Update();
+                   
                     if (stepsEnemy % enemiesPause == 0)
                     {
                         GenerateRandomEnemy();
                         UpdateEnemies();
-                        HandleCollisionsEnemiesPlayer();
+                        EnemiesPlayer();
                         stepsEnemy = 0;
                     }
                     stepsEnemy++;
@@ -73,6 +79,12 @@ namespace Game
                     {
                         GenerateRandomBonus();
                         stepsBonus = 0;
+                    }
+                    stepsShield++;
+                    if (stepsShield != 0 && stepsShield % shieldPause == 0)
+                    {
+                        GenerateRandomShield();
+                        stepsShield = 0;
                     }
                     stepsBonus++;
 
@@ -111,7 +123,11 @@ namespace Game
                         {
                             stepsBonus = 499;
                         }
-                        
+                        else if (pressedKey.Key == ConsoleKey.N)
+                        {
+                            stepsShield = 749;
+                        }
+
                     }
 
                     Thread.Sleep(200);
@@ -151,7 +167,6 @@ namespace Game
                         string namePlayer = playerInfo[0];
                         string points = playerInfo[1];
 
-
                         if (points != "NaN" && namePlayer != "")
                         {
                             int point = int.Parse(points);
@@ -182,11 +197,14 @@ namespace Game
         private static void DrowTopResults(int x, int y)
         {
             int i = 1;
-            foreach (KeyValuePair<string, int> result in topResults.OrderByDescending(key => key.Value).Take(10))
+            foreach (KeyValuePair<string, int> result in topResults.OrderByDescending(key => key.Value).Take(5))
             {
                 Console.SetCursorPosition(x, y + i);
-                Console.WriteLine("{0}. {1} - {2} Kills",i, result.Key, result.Value);
-                i++;
+                Console.WriteLine("{0}. {1} - {2} Kills", i, result.Key, result.Value);
+                if (i <= 5)
+                {
+                    i++;
+                }
 
             }
         }
@@ -201,10 +219,12 @@ namespace Game
 
         private static void Update()
         {
-            HandleCollisionsEnemiesShots();
+            EnemiesShots();
             UpdateShots();
-            HandleCollisionsBonusPlayer();
+            BonusPlayer();
             UpdateLiveBonus();
+            ShieldPlayer();
+            UpdateShield();
             Level();
         }
 
@@ -272,19 +292,27 @@ namespace Game
             }
         }
 
-        private static void HandleCollisionsEnemiesPlayer()
+        private static void EnemiesPlayer()
         {
             for (int i = 0; i < enemies.Count; i++)
             {
                 if (enemies[i][0] == playerPosition && enemies[i][1] == Height - 1)
                 {
-                    liveCount--;
-                    killPlayer.Play();
+                    if (shieldsCount > 0)
+                    {
+                        shieldsCount--;
+                        KillsCount++;
+                    }
+                    else
+                    {
+                        liveCount--;
+                        killPlayer.Play();
+                    }
                 }
             }
         }
 
-        private static void HandleCollisionsEnemiesShots()
+        private static void EnemiesShots()
         {
             List<int> enemiesToRemove = new List<int>();
             List<int> shotsToRemove = new List<int>();
@@ -321,7 +349,7 @@ namespace Game
             shots = newShots;
         }
 
-        private static void HandleCollisionsBonusPlayer()
+        private static void BonusPlayer()
         {
             for (int i = 0; i < bonus.Count; i++)
             {
@@ -397,21 +425,24 @@ namespace Game
 
         private static void Drow()
         {
-
-            success = ((KillsCount * 100.0) / shotsCount).ToString("F2");
+            success = ((KillsCount*100.0)/shotsCount).ToString("F2");
             DrowEnemies();
             DrowBonus();
             DrowShots();
             DrowPlayer();
+            DrowShield();
             DrowInfo(35, 2, "Player Name: " + name, ConsoleColor.White);
             DrowInfo(35, 4, "Lvl: " + levels, ConsoleColor.Yellow);
             DrowInfo(35, 6, "Lives: " + new string(heart, 10), ConsoleColor.DarkRed);
             DrowInfo(35, 6, "Lives: " + new string(heart, liveCount), ConsoleColor.Red);
-            DrowInfo(35, 8, "Shots: " + shotsCount, ConsoleColor.Blue);
-            DrowInfo(35, 10, "Kills: " + KillsCount, ConsoleColor.Green);
-            DrowInfo(35, 12, "Success: " + success + " %", ConsoleColor.Yellow);
-            DrowInfo(35, 14, "TOP 10: ", ConsoleColor.Red);
-            DrowTopResults(35, 15);
+            DrowInfo(35, 8, "Shield: " + new string(shield, 3), ConsoleColor.DarkYellow);
+            DrowInfo(35, 8, "Shield: " + new string(shield, shieldsCount), ConsoleColor.Yellow);
+            DrowInfo(35, 10, "Shots: " + shotsCount, ConsoleColor.Blue);
+            DrowInfo(35, 12, "Kills: " + KillsCount, ConsoleColor.Green);
+            DrowInfo(35, 14, "Success: " + success + " %", ConsoleColor.Yellow);
+            DrowInfo(35, 16, "TOP 5: ", ConsoleColor.Red);
+            DrowTopResults(35,16);
+
         }
 
         private static void DrowSymbolAtCoordinates(List<int> coordinates, char symbol, ConsoleColor color)
@@ -488,6 +519,61 @@ namespace Game
                 1
             };
             bonus.Add(randomBonusCordinates);
+        }
+
+
+        private static void ShieldPlayer()
+        {
+            for (int i = 0; i < shields.Count; i++)
+            {
+                if (shields[i][0] == playerPosition && shields[i][1] == Height - 1)
+                {
+                    if (shieldsCount < 3)
+                    {
+                        shieldsCount++;
+                    }
+                }
+            }
+        }
+        private static void DrowShield()
+        {
+            foreach (List<int> sh in shields)
+            {
+                ConsoleColor shieldsColor = ConsoleColor.Yellow;
+                DrowSymbolAtCoordinates(sh, shield, shieldsColor);
+            }
+        }
+        private static void UpdateShield()
+        {
+            for (int i = 0; i < shields.Count; i++)
+            {
+                shields[i][1] = shields[i][1] + 1;
+            }
+            int index = -1;
+            for (int i = 0; i < shields.Count; i++)
+            {
+                if (shields[i][1] >= Height)
+                {
+                    index = i;
+                    break;
+
+                }
+            }
+            if (index != -1)
+            {
+                shields.RemoveAt(index);
+            }
+        }
+
+        private static void GenerateRandomShield()
+        {
+            int randomShieldsPosition = rend.Next(1, Width);
+            List<int> randomShieldsCordinates = new List<int>()
+            {
+                randomShieldsPosition,
+                1
+            };
+            shields.Add(randomShieldsCordinates);
         }
     }
 }
