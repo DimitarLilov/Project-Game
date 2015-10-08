@@ -1,7 +1,7 @@
 Peevski|10000
 Pesho|5000
 Gosho|4000
-Ivan|3000
+Djordjano|3000
 Volodiq|2000
 Kacii|1000
 Sasho|900
